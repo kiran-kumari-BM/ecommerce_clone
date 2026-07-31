@@ -5,7 +5,7 @@ import Checkout from './pages/Checkout';
 import Payment from './pages/Payment';
 import Orders from './pages/Orders'; // 1. WE IMPORT THE ORDERS PAGE HERE
 import Login from './pages/Login';
-
+import ProductDetail from "./pages/ProductDetail";
 function App() {
   return (
     <Router>
@@ -26,6 +26,7 @@ function App() {
           {/* 2. WE REGISTER THE ORDERS ROUTE HERE */}
           <Route path="/orders" element={<Orders />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           
         </Routes>
         

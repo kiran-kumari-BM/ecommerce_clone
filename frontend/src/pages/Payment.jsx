@@ -12,17 +12,61 @@ function Payment() {
   
   const [processing, setProcessing] = useState(false);
   const [address, setAddress] = useState("");
+  const [fetchingLocation, setFetchingLocation] = useState(false);
 
   const total = items.reduce((sum, item) => sum + item.price, 0);
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
+      setFetchingLocation(true);
+      setAddress("Finding your exact street..."); 
+
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
-          setAddress(`Lat: ${latitude}, Long: ${longitude}`);
+          try {
+            // Added zoom=18 for street-level accuracy and addressdetails=1 to get specific parts
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            );
+            const data = await response.json();
+            
+            if (data && data.address) {
+              const { road, suburb, city, town, village, state, postcode } = data.address;
+              
+              // Build the custom address format
+              const streetPart = road || suburb || "";
+              const cityPart = city || town || village || "";
+              
+              // Filter out empty parts and join them with a comma
+              const formattedParts = [streetPart, cityPart].filter(part => part !== "").join(", ");
+              
+              // Add state and PIN code exactly how you requested
+              let finalAddress = formattedParts;
+              if (state && postcode) {
+                finalAddress += `, ${state} ${postcode}`;
+              } else if (state) {
+                finalAddress += `, ${state}`;
+              }
+
+              // Set it to the text box (fallback to default if custom format fails)
+              setAddress(finalAddress || data.display_name);
+            } else {
+              setAddress(`Lat: ${latitude}, Long: ${longitude}`);
+            }
+          } catch (error) {
+            console.error("Geocoding failed", error);
+            setAddress(`Lat: ${latitude}, Long: ${longitude}`); 
+          }
+          setFetchingLocation(false);
         },
-        (error) => alert("Unable to retrieve location")
+        (error) => {
+          alert("Unable to retrieve location. Please type it manually.");
+          setAddress("");
+          setFetchingLocation(false);
+        },
+        // Force high accuracy if available (better for phones)
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else {
       alert("Geolocation is not supported by your browser");
@@ -30,17 +74,15 @@ function Payment() {
   };
 
   const openInMaps = () => {
-    if (address.startsWith("Lat:")) {
-        const coords = address.replace("Lat: ", "").replace("Long: ", "").split(", ");
-        const url = `https://www.google.com/maps/search/?api=1&query=${coords[0]},${coords[1]}`;
+    if (address && !address.startsWith("Finding")) {
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
         window.open(url, "_blank");
     } else {
-        alert("Please fetch location first!");
+        alert("Please enter or fetch an address first!");
     }
   };
 
   const handleRazorpayPayment = async () => {
-    // 1. SAFETY CHECK: This prevents the 401 Database Error!
     const token = localStorage.getItem("token");
     if (!token) {
       alert("You must be logged in to place an order.");
@@ -48,7 +90,7 @@ function Payment() {
       return; 
     }
 
-    if (!address) {
+    if (!address || address.startsWith("Finding")) {
       alert("Please enter or fetch your delivery address.");
       return;
     }
@@ -86,9 +128,7 @@ function Payment() {
         description: "Secure Order",
         order_id: orderData.order_id, 
         handler: async function (response) {
-          
           try {
-            // Sending the confirmed token to the database
             const dbResponse = await fetch("http://localhost:8000/api/checkout", {
               method: "POST",
               headers: { 
@@ -136,14 +176,25 @@ function Payment() {
           onChange={(e) => setAddress(e.target.value)}
           className="border border-gray-400 p-2 rounded focus:outline-none focus:border-yellow-500"
           rows={3}
+          placeholder="Type your address or use current location"
           required
         />
-        <div className="flex gap-2">
-            <button type="button" onClick={handleGetLocation} className="text-blue-500 text-sm mt-1 text-left hover:underline">
-            📍 Use current location
+        <div className="flex gap-4 mt-2">
+            <button 
+              type="button" 
+              onClick={handleGetLocation} 
+              disabled={fetchingLocation}
+              className={`text-sm text-left hover:underline ${fetchingLocation ? "text-gray-400" : "text-blue-500"}`}
+            >
+              📍 {fetchingLocation ? "Locating..." : "Use current location"}
             </button>
-            <button type="button" onClick={openInMaps} className="text-gray-600 text-sm mt-1 text-left hover:underline">
-            🗺️ View on Map
+            
+            <button 
+              type="button" 
+              onClick={openInMaps} 
+              className="text-gray-600 text-sm text-left hover:underline"
+            >
+              🗺️ Open in Maps
             </button>
         </div>
       </div>
@@ -152,9 +203,9 @@ function Payment() {
 
       <button 
         onClick={handleRazorpayPayment}
-        disabled={processing || !address}
+        disabled={processing || !address || address.startsWith("Finding")}
         className={`w-full max-w-sm p-4 text-lg font-bold rounded-md shadow-sm transition-all ${
-          processing || !address
+          processing || !address || address.startsWith("Finding")
           ? "bg-gray-300 cursor-not-allowed" 
           : "bg-gradient-to-b from-yellow-200 to-yellow-400 hover:from-yellow-300 hover:to-yellow-500"
         }`}
