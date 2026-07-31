@@ -1,0 +1,35 @@
+
+
+# ========================
+# 1. Environment Variables (CRITICAL)
+# ========================
+.env
+.env.local
+.env.*
+
+# ========================
+# 2. Python / FastAPI Backend
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+*.sqlite3
+*.db
+
+# ========================
+# 3. React Frontend
+# ========================
+node_modules/
+dist/
+build/
+.npm/
+
+# ========================
+# 4. OS & Editor Files
+# ========================
+.DS_Store
+.vscode/
+.idea/

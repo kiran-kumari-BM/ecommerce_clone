@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+  --color-amazon_blue: #131921;
+  --color-amazon_blue-light: #232F3E;
+}
