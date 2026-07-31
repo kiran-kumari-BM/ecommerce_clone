@@ -59,7 +59,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 # --- ADMIN UTILS ---
 def verify_admin(current_user):
     # REPLACE THIS WITH YOUR LOGIN EMAIL
-    ADMIN_EMAIL = "kiranmanjunath@example.com" 
+    ADMIN_EMAIL = "kirankumarimanjunath@gmail.com" 
     if current_user.email != ADMIN_EMAIL:
         raise HTTPException(
             status_code=403, 

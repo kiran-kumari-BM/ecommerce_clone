@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
@@ -31,3 +32,12 @@ class CheckoutRequest(BaseModel):
     items: List[CheckoutItem]
     total_amount: float
     address: str # <--- Add this line
+
+
+
+class ProductCreate(BaseModel):
+    title: str
+    price: float
+    description: str
+    category: str
+    image: str
