@@ -26,12 +26,12 @@ class CheckoutRequest(BaseModel):
     items: List[CheckoutItem]
     total_amount: float
 
-
-# Add 'address' to CheckoutRequest
 class CheckoutRequest(BaseModel):
-    items: List[CheckoutItem]
+    items: List[CartItem]
     total_amount: float
-    address: str # <--- Add this line
+    email: str 
+    # Make sure 'address' is NOT here, or make it optional like this:
+    # address: str | None = None
 
 
 
@@ -41,3 +41,24 @@ class ProductCreate(BaseModel):
     description: str
     category: str
     image: str
+
+
+
+from pydantic import BaseModel
+from typing import List
+
+class CartItem(BaseModel):
+    id: int
+    price: float
+
+
+class PaymentVerificationRequest(BaseModel):
+    razorpay_order_id: str
+    razorpay_payment_id: str
+    razorpay_signature: str
+    
+    # We still need the cart data to save to the database & send the email
+    items: List[CartItem]
+    total_amount: float
+    email: str 
+    # address: str (Optional, depending on if you are sending it from React)

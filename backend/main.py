@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session, joinedload
@@ -11,6 +11,8 @@ import schemas
 import razorpay
 import os
 from dotenv import load_dotenv
+import smtplib
+from email.mime.text import MIMEText
 
 load_dotenv()
 
@@ -66,6 +68,39 @@ def verify_admin(current_user):
             detail="Forbidden: You do not have admin privileges."
         )
     return True
+
+# --- EMAIL UTILS ---
+def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
+    # NOTE: To make this work with a real Gmail account, you must generate an "App Password" 
+    # in your Google Account Security settings. Do not use your real login password.
+    
+    SENDER_EMAIL = "kirankumari767618@gmail.com"  # <-- Change this to your actual Gmail address
+    SENDER_PASSWORD = "zyef wvwf hxzm ejjx"  # <-- PASTE YOUR 16-LETTER PASSWORD HERE
+
+    subject = f"Order Confirmation - dummy.zon Order #{order_id}"
+    body = f"""
+    Hello!
+    
+    Thank you for shopping at dummy.zon!
+    Your order (ID: {order_id}) has been placed successfully.
+    
+    Total Amount: ${total_amount:.2f}
+    
+    We will let you know when your items ship.
+    """
+
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = SENDER_EMAIL
+    msg['To'] = user_email
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            server.sendmail(SENDER_EMAIL, user_email, msg.as_string())
+        print(f"Email successfully sent to {user_email}")
+    except Exception as e:
+        print(f"Failed to send email. Error: {e}")
 
 # --- CONFIG ---
 razorpay_client = razorpay.Client(auth=("rzp_test_TJll7YzssBvYZ6", "m8TyIg8crQbYdAOpVbY0rHpA"))
@@ -140,21 +175,50 @@ def create_razorpay_order(request: schemas.CheckoutRequest):
     razorpay_order = razorpay_client.order.create(data=order_data)
     return {"order_id": razorpay_order["id"]}
 
-@app.post("/api/checkout")
-def process_checkout(request: schemas.CheckoutRequest, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    if not request.items:
-        raise HTTPException(status_code=400, detail="Cart is empty")
+@app.post("/api/checkout/verify")
+def verify_payment_and_checkout(
+    request: schemas.PaymentVerificationRequest, 
+    background_tasks: BackgroundTasks, 
+    db: Session = Depends(get_db)
+):
+    # 1. Verify the Razorpay signature
+    try:
+        razorpay_client.utility.verify_payment_signature({
+            'razorpay_order_id': request.razorpay_order_id,
+            'razorpay_payment_id': request.razorpay_payment_id,
+            'razorpay_signature': request.razorpay_signature
+        })
+    except razorpay.errors.SignatureVerificationError:
+        # If the signature doesn't match, someone is trying to fake a payment!
+        raise HTTPException(status_code=400, detail="Payment verification failed. Invalid signature.")
 
-    new_order = models.Order(total_amount=request.total_amount, owner_id=current_user.id, address=request.address)
+    # 2. If verification passes, save the order to the database
+    new_order = models.Order(
+        total_amount=request.total_amount, 
+        owner_id=1,  # Hardcoded temporarily if user isn't logged in
+        address="123 Dummy Street" # Hardcoded temporarily
+    )
     db.add(new_order)
     db.commit()
     db.refresh(new_order) 
 
+    # Save the individual items
     for item in request.items:
-        order_item = models.OrderItem(order_id=new_order.id, product_id=item.id, price_at_purchase=item.price)
+        order_item = models.OrderItem(
+            order_id=new_order.id, 
+            product_id=item.id, 
+            price_at_purchase=item.price
+        )
         db.add(order_item)
     db.commit()
-    return {"message": "Order processed successfully!", "order_id": new_order.id}
+    
+    # 3. Payment is confirmed and order is saved -> Send the Email!
+    background_tasks.add_task(send_confirmation_email, request.email, new_order.id, request.total_amount)
+    
+    return {"message": "Payment verified and order processed successfully!", "order_id": new_order.id}
+
+
+
 
 @app.get("/api/orders")
 def get_orders(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
