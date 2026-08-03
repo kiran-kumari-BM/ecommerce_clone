@@ -44,7 +44,7 @@ function Checkout() {
 
     try {
       // 2. Ask backend to create a Razorpay Order
-      const orderResponse = await fetch("http://localhost:8000/api/razorpay/create_order", {
+      const orderResponse = await fetch("https://ecommerce-clone-vp2h.onrender.com/api/razorpay/create_order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(checkoutData),
@@ -78,7 +78,7 @@ function Checkout() {
             email: checkoutData.email
           };
 
-          const verifyResponse = await fetch("http://localhost:8000/api/checkout/verify", {
+          const verifyResponse = await fetch("https://ecommerce-clone-vp2h.onrender.com/api/checkout/verify", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(verificationData),
