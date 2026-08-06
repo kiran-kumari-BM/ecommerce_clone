@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectItems, clearCart } from "../slices/cartSlice";
-import CheckoutProduct from "../components/CheckoutProduct";
+import CheckoutProduct from "../components/CheckOutProduct";
 import { useNavigate } from "react-router-dom";
 
 // Utility function to load the Razorpay script dynamically
