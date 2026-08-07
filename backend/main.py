@@ -103,6 +103,9 @@ def verify_admin(current_user):
 
 # --- EMAIL UTILS ---
 def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
+    # This will immediately tell us if the background task even started!
+    print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
+    
     SENDER_EMAIL = "kirankumari767618@gmail.com"  
     SENDER_PASSWORD = "zyef wvwf hxzm ejjx"  
 
@@ -124,14 +127,42 @@ def send_confirmation_email(user_email: str, order_id: int, total_amount: float)
     msg['To'] = user_email
 
     try:
-        # CHANGED: We are now using standard SMTP on port 587 instead of SMTP_SSL on 465
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls() # This command encrypts the connection to bypass the firewall
+            server.starttls() 
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
             server.sendmail(SENDER_EMAIL, user_email, msg.as_string())
-        print(f"Email successfully sent to {user_email}")
+        # flush=True forces Render to show this in the logs instantly
+        print(f"Email successfully sent to {user_email}", flush=True)
     except Exception as e:
-        print(f"Failed to send email. Error: {e}")
+        print(f"Failed to send email. Error: {e}", flush=True)
+
+
+
+
+
+    
+   
+   
+   
+   
+   
+   
+   
+
+   
+   
+   
+   
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 # --- CONFIG ---
 razorpay_client = razorpay.Client(auth=("rzp_test_TJll7YzssBvYZ6", "m8TyIg8crQbYdAOpVbY0rHpA"))
