@@ -21,6 +21,23 @@ Base = models.Base
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+# 1. Define the exact URLs that are allowed to talk to your backend
+origins = [
+    "https://ecommerce-clone-livid.vercel.app", # Your live Vercel frontend
+    "http://localhost:5173",                    # Local Vite frontend (for testing on your Mac)
+    "http://localhost:3000",                    # Alternative local port
+    "http://localhost:5174",                    # Added your other local port just in case!
+]
+
+# 2. Add the CORS middleware to your app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Allows all methods like POST, GET, OPTIONS, etc.
+    allow_headers=["*"], # Allows all headers
+)
+
 SECRET_KEY = "9bf7debe36bda20b632a5e53590088cf00b6a782160887f607686c8399a0d36d"
 ALGORITHM = "HS256"
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -104,14 +121,6 @@ def send_confirmation_email(user_email: str, order_id: int, total_amount: float)
 
 # --- CONFIG ---
 razorpay_client = razorpay.Client(auth=("rzp_test_TJll7YzssBvYZ6", "m8TyIg8crQbYdAOpVbY0rHpA"))
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # --- ROUTES ---
 
@@ -216,9 +225,6 @@ def verify_payment_and_checkout(
     background_tasks.add_task(send_confirmation_email, request.email, new_order.id, request.total_amount)
     
     return {"message": "Payment verified and order processed successfully!", "order_id": new_order.id}
-
-
-
 
 @app.get("/api/orders")
 def get_orders(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
