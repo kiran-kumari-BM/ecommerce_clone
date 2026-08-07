@@ -15,7 +15,8 @@ const loadScript = (src) => {
   });
 };
 
-function Checkout() {
+       
+function Checkout()   {
   const items = useSelector(selectItems);
   const dispatch = useDispatch();
   const navigate = useNavigate();
