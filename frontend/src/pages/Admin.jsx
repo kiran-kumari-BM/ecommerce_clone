@@ -13,11 +13,12 @@ function Admin() {
   });
 
   const fetchProducts = async () => {
-    const res = await fetch("http://localhost:8000/api/products");
+    // FIXED: Correctly calls the VITE_BACKEND_URL variable
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
     const data = await res.json();
     setProducts(data);
   };
-
+  
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -25,7 +26,8 @@ function Admin() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     
-    const res = await fetch(`http://localhost:8000/api/admin/products/${id}`, {
+    // FIXED: Swapped localhost for the Vite environment variable
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders()
     });
@@ -40,7 +42,8 @@ function Admin() {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    const res = await fetch("https://ecommerce-clone-b.onrender.com/api/admin/products", {
+    // FIXED: Swapped hardcoded Render link for the Vite environment variable
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ ...formData, price: parseFloat(formData.price) })
