@@ -10,7 +10,7 @@ function ProductFeed() {
     const fetchProducts = async () => {
       try {
         // Hitting your local FastAPI server
-        const response = await fetch("http://localhost:8000/api/products");
+        const response = await fetch("https://ecommerce-clone-b.onrender.com/api/products");
         const data = await response.json();
         
         // Storing the JSON data into our state
