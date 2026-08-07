@@ -9,8 +9,8 @@ function ProductFeed() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Hitting your local FastAPI server
-        const response = await fetch("https://ecommerce-clone-b.onrender.com/api/products");
+        // Hitting your local Ffetch(`${import.meta.env.VITE_BACKEND_URL}/api/products`)
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
         const data = await response.json();
         
         // Storing the JSON data into our state
