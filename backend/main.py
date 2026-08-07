@@ -102,15 +102,27 @@ def verify_admin(current_user):
         )
     return True
 
-# --- EMAIL UTILS -- # Make sure this import is at the top of main.py
+# --- EMAIL UTILS -- # Make sure this import is at the top of main.pyimport osimport requests
+
 import os
 import requests
 
 def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
     print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
     
-    # Reads the key securely from Render Environment Variables
-    BREVO_API_KEY = os.getenv("BREVO_API_KEY")  
+    # 1. Safely load the key
+    raw_key = os.getenv("BREVO_API_KEY")
+    
+    # 2. Check if Render can even see the variable
+    if not raw_key:
+        print("🚨 ERROR: Python cannot find the BREVO_API_KEY! Check Render Environment Variables.", flush=True)
+        return
+        
+    # 3. Strip any invisible spaces or newlines that cause 401 errors
+    BREVO_API_KEY = raw_key.strip() 
+    
+    print(f"✅ Key found! Starts with: {BREVO_API_KEY[:10]} (Length: {len(BREVO_API_KEY)})", flush=True)
+
     SENDER_EMAIL = "kirankumari767618@gmail.com"  
 
     url = "https://api.brevo.com/v3/smtp/email"
@@ -140,34 +152,15 @@ def send_confirmation_email(user_email: str, order_id: int, total_amount: float)
 
     try:
         response = requests.post(url, json=payload, headers=headers)
+        
+        # If Brevo rejects it, this will print the exact reason Brevo gives us!
+        if not response.ok:
+            print(f"❌ Brevo API Error: {response.text}", flush=True)
+            
         response.raise_for_status() 
-        print(f"Email successfully sent via API to {user_email}", flush=True)
+        print(f"🎉 Email successfully sent via API to {user_email}", flush=True)
     except Exception as e:
         print(f"Failed to send email. Error: {e}", flush=True)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # --- CONFIG ---
