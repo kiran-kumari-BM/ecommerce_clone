@@ -43,7 +43,7 @@ function Admin() {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     // FIXED: Swapped hardcoded Render link for the Vite environment variable
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products`, {
+    const res = await fetch(`${import.meta.env.https://ecommerce-clone-b.onrender.com}/api/admin/products`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ ...formData, price: parseFloat(formData.price) })
