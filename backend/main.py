@@ -102,19 +102,14 @@ def verify_admin(current_user):
         )
     return True
 
-# --- EMAIL UTILS ---
-
-
+# --- EMAIL UTILS --
+import requests  # Make sure this import is at the top of main.py
 
 def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
     print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
     
-    # Replace this with the API key you copied from Brevo
-    BREVO_API_KEY = "def send_confirmation_email(user_email: str, order_id: int, total_amount: float):"
-    print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
-    
-    # Replace this with the API key you copied from Brevo
-    BREVO_API_KEY = "YOUR_BREVO_API_KEY_HERE"  
+    # Paste your actual Brevo API Key between these quotes (e.g., "xkeysib-...")
+    BREVO_API_KEY = "PASTE_YOUR_BREVO_API_KEY_HERE"  
     SENDER_EMAIL = "kirankumari767618@gmail.com"  
 
     url = "https://api.brevo.com/v3/smtp/email"
@@ -143,53 +138,11 @@ def send_confirmation_email(user_email: str, order_id: int, total_amount: float)
     }
 
     try:
-        # This sends the email via standard HTTPS web traffic!
         response = requests.post(url, json=payload, headers=headers)
-        
-        # This forces Python to crash and print the error if Brevo rejects it
         response.raise_for_status() 
-        
-        print(f"Email successfully sent via API to {user_email}", flush=True)
-    except Exception as e:
-        print(f"Failed to send email. Error: {e}", flush=True)"  
-    SENDER_EMAIL = "kirankumari767618@gmail.com"  
-
-    url = "https://api.brevo.com/v3/smtp/email"
-    
-    headers = {
-        "accept": "application/json",
-        "api-key": BREVO_API_KEY,
-        "content-type": "application/json"
-    }
-    
-    payload = {
-        "sender": {"name": "dummy.zon Store", "email": SENDER_EMAIL},
-        "to": [{"email": user_email}],
-        "subject": f"Order Confirmation - dummy.zon Order #{order_id}",
-        "htmlContent": f"""
-        <html>
-            <body>
-                <h2>Hello!</h2>
-                <p>Thank you for shopping at dummy.zon!</p>
-                <p>Your order (ID: <strong>{order_id}</strong>) has been placed successfully.</p>
-                <p>Total Amount: <strong>${total_amount:.2f}</strong></p>
-                <p>We will let you know when your items ship.</p>
-            </body>
-        </html>
-        """
-    }
-
-    try:
-        # This sends the email via standard HTTPS web traffic!
-        response = requests.post(url, json=payload, headers=headers)
-        
-        # This forces Python to crash and print the error if Brevo rejects it
-        response.raise_for_status() 
-        
         print(f"Email successfully sent via API to {user_email}", flush=True)
     except Exception as e:
         print(f"Failed to send email. Error: {e}", flush=True)
- 
 
 # --- CONFIG ---
 razorpay_client = razorpay.Client(auth=("rzp_test_TJll7YzssBvYZ6", "m8TyIg8crQbYdAOpVbY0rHpA"))
