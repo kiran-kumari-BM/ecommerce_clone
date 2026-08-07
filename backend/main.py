@@ -13,6 +13,7 @@ import os
 from dotenv import load_dotenv
 import smtplib
 from email.mime.text import MIMEText
+import requests
 
 load_dotenv()
 
@@ -102,66 +103,92 @@ def verify_admin(current_user):
     return True
 
 # --- EMAIL UTILS ---
+
+
+
 def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
-    # This will immediately tell us if the background task even started!
     print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
     
+    # Replace this with the API key you copied from Brevo
+    BREVO_API_KEY = "def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
+    print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
+    
+    # Replace this with the API key you copied from Brevo
+    BREVO_API_KEY = "YOUR_BREVO_API_KEY_HERE"  
     SENDER_EMAIL = "kirankumari767618@gmail.com"  
-    SENDER_PASSWORD = "zyef wvwf hxzm ejjx"  
 
-    subject = f"Order Confirmation - dummy.zon Order #{order_id}"
-    body = f"""
-    Hello!
+    url = "https://api.brevo.com/v3/smtp/email"
     
-    Thank you for shopping at dummy.zon!
-    Your order (ID: {order_id}) has been placed successfully.
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
     
-    Total Amount: ${total_amount:.2f}
-    
-    We will let you know when your items ship.
-    """
-
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = SENDER_EMAIL
-    msg['To'] = user_email
+    payload = {
+        "sender": {"name": "dummy.zon Store", "email": SENDER_EMAIL},
+        "to": [{"email": user_email}],
+        "subject": f"Order Confirmation - dummy.zon Order #{order_id}",
+        "htmlContent": f"""
+        <html>
+            <body>
+                <h2>Hello!</h2>
+                <p>Thank you for shopping at dummy.zon!</p>
+                <p>Your order (ID: <strong>{order_id}</strong>) has been placed successfully.</p>
+                <p>Total Amount: <strong>${total_amount:.2f}</strong></p>
+                <p>We will let you know when your items ship.</p>
+            </body>
+        </html>
+        """
+    }
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls() 
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            server.sendmail(SENDER_EMAIL, user_email, msg.as_string())
-        # flush=True forces Render to show this in the logs instantly
-        print(f"Email successfully sent to {user_email}", flush=True)
+        # This sends the email via standard HTTPS web traffic!
+        response = requests.post(url, json=payload, headers=headers)
+        
+        # This forces Python to crash and print the error if Brevo rejects it
+        response.raise_for_status() 
+        
+        print(f"Email successfully sent via API to {user_email}", flush=True)
+    except Exception as e:
+        print(f"Failed to send email. Error: {e}", flush=True)"  
+    SENDER_EMAIL = "kirankumari767618@gmail.com"  
+
+    url = "https://api.brevo.com/v3/smtp/email"
+    
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+    
+    payload = {
+        "sender": {"name": "dummy.zon Store", "email": SENDER_EMAIL},
+        "to": [{"email": user_email}],
+        "subject": f"Order Confirmation - dummy.zon Order #{order_id}",
+        "htmlContent": f"""
+        <html>
+            <body>
+                <h2>Hello!</h2>
+                <p>Thank you for shopping at dummy.zon!</p>
+                <p>Your order (ID: <strong>{order_id}</strong>) has been placed successfully.</p>
+                <p>Total Amount: <strong>${total_amount:.2f}</strong></p>
+                <p>We will let you know when your items ship.</p>
+            </body>
+        </html>
+        """
+    }
+
+    try:
+        # This sends the email via standard HTTPS web traffic!
+        response = requests.post(url, json=payload, headers=headers)
+        
+        # This forces Python to crash and print the error if Brevo rejects it
+        response.raise_for_status() 
+        
+        print(f"Email successfully sent via API to {user_email}", flush=True)
     except Exception as e:
         print(f"Failed to send email. Error: {e}", flush=True)
-
-
-
-
-
-    
-   
-   
-   
-   
-   
-   
-   
-
-   
-   
-   
-   
-
- 
- 
- 
- 
- 
- 
- 
- 
  
 
 # --- CONFIG ---
