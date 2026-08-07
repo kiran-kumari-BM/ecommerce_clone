@@ -103,11 +103,8 @@ def verify_admin(current_user):
 
 # --- EMAIL UTILS ---
 def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
-    # NOTE: To make this work with a real Gmail account, you must generate an "App Password" 
-    # in your Google Account Security settings. Do not use your real login password.
-    
-    SENDER_EMAIL = "kirankumari767618@gmail.com"  # <-- Change this to your actual Gmail address
-    SENDER_PASSWORD = "zyef wvwf hxzm ejjx"  # <-- PASTE YOUR 16-LETTER PASSWORD HERE
+    SENDER_EMAIL = "kirankumari767618@gmail.com"  
+    SENDER_PASSWORD = "zyef wvwf hxzm ejjx"  
 
     subject = f"Order Confirmation - dummy.zon Order #{order_id}"
     body = f"""
@@ -127,7 +124,9 @@ def send_confirmation_email(user_email: str, order_id: int, total_amount: float)
     msg['To'] = user_email
 
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        # CHANGED: We are now using standard SMTP on port 587 instead of SMTP_SSL on 465
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls() # This command encrypts the connection to bypass the firewall
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
             server.sendmail(SENDER_EMAIL, user_email, msg.as_string())
         print(f"Email successfully sent to {user_email}")
