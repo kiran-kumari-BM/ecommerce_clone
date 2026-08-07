@@ -2,6 +2,21 @@ import { useNavigate } from "react-router-dom";
 
 function Header() {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  // 1. Check if the user is the admin
+  let isAdmin = false;
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // If the logged-in email is yours, make them an admin!
+      if (payload.sub === "kirankumarimanjunath@gmail.com") {
+        isAdmin = true;
+      }
+    } catch (error) {
+      console.error("Could not read token");
+    }
+  }
 
   const handleSignOut = () => {
     localStorage.removeItem("token");
@@ -18,8 +33,8 @@ function Header() {
       {/* Navigation Links */}
       <div className="flex items-center space-x-6">
         
-        {/* Admin Dashboard Button (Only visible if logged in) */}
-        {localStorage.getItem("token") && (
+        {/* 2. THE FIX: Now this only shows if isAdmin is true */}
+        {isAdmin && (
           <button 
             onClick={() => navigate("/admin")}
             className="text-white font-bold hover:text-yellow-400"
@@ -32,7 +47,7 @@ function Header() {
           Returns & Orders
         </button>
 
-        {localStorage.getItem("token") ? (
+        {token ? (
           <button onClick={handleSignOut} className="hover:text-yellow-400">
             Sign Out
           </button>

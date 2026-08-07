@@ -13,20 +13,44 @@ function Admin() {
   });
 
   const fetchProducts = async () => {
-    // FIXED: Correctly calls the VITE_BACKEND_URL variable
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
     const data = await res.json();
     setProducts(data);
   };
   
+  // SECURE THE ROUTE: Check admin status on load
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    
+    // 1. If no token, kick them to login
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      // 2. Decode the JWT token to read the email (the 'sub' property)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      
+      // 3. If they are not the admin, kick them to the homepage
+      if (payload.sub !== "kirankumarimanjunath@gmail.com") {
+        alert("Access Denied: You do not have admin privileges.");
+        navigate("/");
+        return;
+      }
+    } catch (error) {
+      // If the token is invalid or corrupted, kick them to login
+      navigate("/login");
+      return;
+    }
+
+    // 4. If they pass the security check, load the admin data!
     fetchProducts();
-  }, []);
+  }, [navigate]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     
-    // FIXED: Swapped localhost for the Vite environment variable
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders()
@@ -42,7 +66,6 @@ function Admin() {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    // FIXED: Swapped hardcoded Render link for the Vite environment variable
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products`, {
       method: "POST",
       headers: getAuthHeaders(),
