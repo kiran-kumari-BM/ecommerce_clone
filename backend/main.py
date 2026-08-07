@@ -110,7 +110,7 @@ def send_confirmation_email(user_email: str, order_id: int, total_amount: float)
     print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
     
     # Replace this with the API key you copied from Brevo
-    BREVO_API_KEY = "def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
+    BREVO_API_KEY = "def send_confirmation_email(user_email: str, order_id: int, total_amount: float):"
     print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
     
     # Replace this with the API key you copied from Brevo
