@@ -21,12 +21,14 @@ Base = models.Base
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+# 1. Define the exact URLs that are allowed to talk to your backe
 # 1. Define the exact URLs that are allowed to talk to your backend
 origins = [
-    "https://ecommerce-clone-livid.vercel.app", # Your live Vercel frontend
-    "http://localhost:5173",                    # Local Vite frontend (for testing on your Mac)
-    "http://localhost:3000",                    # Alternative local port
-    "http://localhost:5174",                    # Added your other local port just in case!
+    "https://ecommerce-clone-livid.vercel.app", 
+    "https://ecommerce-clone-r62iusvb0-kirankumari-b-ms-projects.vercel.app", # <-- ADD THIS NEW LINK
+    "http://localhost:5173",                    
+    "http://localhost:3000",                    
+    "http://localhost:5174",                    
 ]
 
 # 2. Add the CORS middleware to your app
