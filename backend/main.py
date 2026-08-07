@@ -102,14 +102,15 @@ def verify_admin(current_user):
         )
     return True
 
-# --- EMAIL UTILS --
-import requests  # Make sure this import is at the top of main.py
+# --- EMAIL UTILS -- # Make sure this import is at the top of main.py
+import os
+import requests
 
 def send_confirmation_email(user_email: str, order_id: int, total_amount: float):
     print(f"STARTING EMAIL TASK FOR: {user_email}", flush=True) 
     
-    # Paste your actual Brevo API Key between these quotes (e.g., "xkeysib-...")
-    BREVO_API_KEY = "PASTE_YOUR_BREVO_API_KEY_HERE"  
+    # Reads the key securely from Render Environment Variables
+    BREVO_API_KEY = os.getenv("BREVO_API_KEY")  
     SENDER_EMAIL = "kirankumari767618@gmail.com"  
 
     url = "https://api.brevo.com/v3/smtp/email"
@@ -143,6 +144,31 @@ def send_confirmation_email(user_email: str, order_id: int, total_amount: float)
         print(f"Email successfully sent via API to {user_email}", flush=True)
     except Exception as e:
         print(f"Failed to send email. Error: {e}", flush=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # --- CONFIG ---
 razorpay_client = razorpay.Client(auth=("rzp_test_TJll7YzssBvYZ6", "m8TyIg8crQbYdAOpVbY0rHpA"))
