@@ -13,7 +13,7 @@ function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/products/${id}`);
+        const response = await fetch(`https://ecommerce-clone-b.onrender.com/api/products/${id}`);
         const data = await response.json();
         setProduct(data);
         setLoading(false);

@@ -40,7 +40,7 @@ function Admin() {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:8000/api/admin/products", {
+    const res = await fetch("https://ecommerce-clone-b.onrender.com/api/admin/products", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ ...formData, price: parseFloat(formData.price) })

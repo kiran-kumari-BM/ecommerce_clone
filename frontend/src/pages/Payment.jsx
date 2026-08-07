@@ -104,7 +104,7 @@ function Payment() {
     };
 
     try {
-      const orderResponse = await fetch("http://localhost:8000/api/razorpay/create_order", {
+      const orderResponse = await fetch("https://ecommerce-clone-b.onrender.com/api/razorpay/create_order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(checkoutData), 
@@ -129,7 +129,7 @@ function Payment() {
         order_id: orderData.order_id, 
         handler: async function (response) {
           try {
-            const dbResponse = await fetch("http://localhost:8000/api/checkout", {
+            const dbResponse = await fetch("https://ecommerce-clone-b.onrender.com/api/checkout", {
               method: "POST",
               headers: { 
                 "Content-Type": "application/json",
