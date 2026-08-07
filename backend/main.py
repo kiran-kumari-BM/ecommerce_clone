@@ -33,19 +33,25 @@ origins = [
 
 # 2. Add the CORS middleware to your app
 # 2. Add the CORS middleware to your app
+
+
+
+# 2. Add the CORS middleware to your app
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",                    
-        "http://localhost:3000",                    
-        "http://localhost:5174"
-    ],
-    # This magical line allows ANY Vercel preview link for your project to connect!
-    allow_origin_regex="https://ecommerce-clone.*\.vercel\.app",
-    allow_credentials=True,
+    allow_origins=["*"],  # The star means "Allow ANY website to connect"
+    allow_credentials=False, # Set this to False so the star works!
     allow_methods=["*"], 
     allow_headers=["*"], 
 )
+
+
+
+
+
+
+
+
 
 SECRET_KEY = "9bf7debe36bda20b632a5e53590088cf00b6a782160887f607686c8399a0d36d"
 ALGORITHM = "HS256"
